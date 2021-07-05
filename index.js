@@ -11,6 +11,10 @@ const nodeSassGlobImporter = require('node-sass-glob-importer');
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
 
+// Workaround for https://github.com/brunch/sass-brunch/issues/201
+const IS_WINDOWS = process.platform === 'win32';
+const FILE_PATH_REPLACE = IS_WINDOWS ? 'file:///' : 'file://';
+
 const cssModulify = (path, data, map, options) => {
   let json = {};
   const getJSON = (_, _json) => json = _json; // eslint-disable-line
@@ -121,7 +125,7 @@ class SassCompiler {
       map.sources = map.sources.map(src => sysPath.relative(
         this.rootPath,
         // Brunch expects this to be a path, and doesn't handle URLs.
-        src.replace('file:///', '')
+        src.replace(FILE_PATH_REPLACE, '')
       ));
 
       const params = {data, map};
